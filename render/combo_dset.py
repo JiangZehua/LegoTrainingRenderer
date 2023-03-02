@@ -10,9 +10,10 @@ from math import degrees
 import colorsys
 import sys
 
-bpy.context.scene.update()
+# Get the parent directory of this file
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+bpy.context.view_layer.update()
 
 runs = 200
 classes = ["Wing","Pole","Brick","Engine","Slope","Cockpit"]
@@ -42,10 +43,10 @@ random.seed()
 
 mode = "kpts"
 num = 0
-write_path = "/home/will/projects/legoproj/data/{}_dset_{}/".format(mode,num)
+write_path = os.path.join(parent_dir, "data", "{}_dset_{}".format(mode, num))
 while os.path.exists(write_path):
     num += 1
-    write_path = "/home/will/projects/legoproj/data/{}_dset_{}/".format(mode,num)
+    write_path = os.path.join(parent_dir, "data", "{}_dset_{}".format(mode, num))
 os.mkdir(write_path)
 
 
@@ -59,7 +60,8 @@ scene_objs = bpy.data.objects
 camera = bpy.data.objects['Camera']
 
 
-imgsdir = "/home/will/projects/training/surface_images/"
+# imgsdir = "/home/will/projects/training/surface_images/"
+imgs_dir = os.path.join(parent_dir, "surface_images")
 imgpaths = os.listdir(imgsdir)
 imgs = []
 

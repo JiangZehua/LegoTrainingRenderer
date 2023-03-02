@@ -1,9 +1,10 @@
+import os
 import bpy
 import json
 import numpy as np
 import mathutils as mu
 
-bpy.context.scene.update()
+bpy.context.view_layer.update()
 
 scene_objs = bpy.data.objects
 
@@ -32,5 +33,11 @@ else:
 
 data["studs"] = verts
 
-with open("/home/will/projects/training/piecedata/{}.json".format(name),"w") as fp:
-    json.dump(data, fp)
+# Parent directory of this file
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+piece_data_dir = os.path.join(parent_dir, "piecedata")
+
+# Save the file in the `piecedata` folder in this directory.
+with open(os.path.join(piece_data_dir, "{}.json".format(name)), "w") as fp:
+	json.dump(data, fp)
+

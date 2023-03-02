@@ -1,3 +1,46 @@
+# Rendering AI lego designer agents
+
+We'll build on top of this repo to render actions taken by an RL level designer.
+
+Test script in `render/render.py`
+
+# Installation
+
+- Download and install blender (tested with 3.4).
+- Open `render/brick_generator.blend` in blender. You can launch blender from the command line with the `/Applications/Blender.app/Contents/MacOS/blender` (or similar).
+- In blender, select scripting mode and open the file `render/render_env.py`, and run the script.
+
+You can edit scripts in external editors and reload them in blender. Run the scipt `render/auto_reload.py` to enable this.
+
+## Make an alias to the blender command
+
+To make an alias to launch Blender from anywhere, you can use the following command in your terminal:
+
+```bash
+alias blender="/Applications/Blender.app/Contents/MacOS/blender"
+```
+
+This will create a shortcut for the full path of the Blender executable. You can replace /Applications/Blender with your actual Blender installation directory. You can also add this command to your ~/.bashrc or ~/.zshrc file to make it permanent.
+
+Now you can type blender in any directory and it will launch Blender.
+
+## Launch blender with virtual environment
+
+The BLENDER_SYSTEM_PYTHON environment variable is used to tell Blender where to find your system's Python installation. You can set this variable before starting Blender, for example:
+
+```bash
+export BLENDER_SYSTEM_PYTHON=/usr/lib/python3.9
+```
+
+Or you can use the --env-system-python option when launching Blender from command line, for example:
+
+```bash
+blender --env-system-python /usr/lib/python3.9
+```
+
+This way, Blender will use your system's Python instead of its bundled Python. You can also use the --python-use-system-env option to allow Python to use system environment variables such as PYTHONPATH and the user site-packages directory.
+
+
 # Lego Renderer for Machine Learning Projects
 
 
