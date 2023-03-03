@@ -69,7 +69,7 @@ def main():
     bpy.context.view_layer.update()
 
     for i in range(10):
-        place_brick(bpy.context.scene, src_brick, (i, i//2, i%2), (2, 2, 3))
+        place_brick(bpy.context.scene, src_brick, (i, i//2, (i%2)*3), (2, 2, 3))
         
         # Print the dimensions of the brick in millimeters
         # print('Brick dimensions: {} x {} x {} mm'.format(
@@ -80,8 +80,8 @@ def main():
     # Deselct all objects
     bpy.ops.object.select_all(action='DESELECT')
 
-def place_brick(scene, src_brick, loc, scale=(1, 1, 3)):
-    loc = np.array(loc) / np.array([125, 125, 104]) * BRICK_SCALE
+def place_brick(scene, src_brick, loc, scale=(1, 1, 1)):
+    loc = np.array(loc) / np.array([125, 125, 312]) * BRICK_SCALE
     # Create a copy of the brick, and move it to a random location
     brick = src_brick.copy()
     brick.location = loc
