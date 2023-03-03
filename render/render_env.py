@@ -9,6 +9,7 @@ import random
 
 # INSTALL = True
 INSTALL = False
+BRICK_SCALE = 85  # So that a standard height (3) brick is ~9.6mm as per real LEGO bricks.
 
 #######################
 
@@ -35,6 +36,8 @@ import torch
 
 
 def main():
+    # Enter object mode
+    bpy.ops.object.mode_set(mode='OBJECT')
 
     # Create primitive cube
     # bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
@@ -49,55 +52,72 @@ def main():
     # Place the brick out of sight
     src_brick.location = (0, 0, -100)
 
-    delete_scene_objects(exclude=[src_brick])
+    # Print the X, Y, and Z inputs of the geometry node
+    print(f'Source brick:')
+    print('X: {}'.format(src_brick.modifiers['GeometryNodes'].node_group.inputs['X']))
+    print('Y: {}'.format(src_brick.modifiers['GeometryNodes'].node_group.inputs['Y']))
+    print('Z: {}'.format(src_brick.modifiers['GeometryNodes'].node_group.inputs['Depth']))
+
+    bpy.ops.object.select_all(action='DESELECT')
+    delete_scene_objects(bpy.context.scene, exclude=[src_brick])
 
     # Add some basic lighting to the scene
     bpy.ops.object.light_add(type='SUN', location=(0, 0, 10))
 
     # Scale the brick # TODO: make this realistic
-    src_brick.scale = (10, 10, 10)
+    src_brick.scale = (BRICK_SCALE, BRICK_SCALE, BRICK_SCALE)
+    bpy.context.view_layer.update()
 
-    for i in range(100):
-        # Create a copy of the brick, and move it to a random location
-        brick = src_brick.copy()
-        brick.location = (random.uniform(-3, 3), random.uniform(-2, 2), random.uniform(-2, 2))
-        bpy.context.scene.collection.objects.link(brick)
-
-        # Select the new plane and make it active and center the view
-        bpy.context.view_layer.objects.active = brick
-        brick.select_set(True)
-
-        # Get the geometry node
-        gnmod = None
-        # print('momomo')
-        # print(brick.modifiers)
-        for gnmod in brick.modifiers:
-            # print(gnmod)
-            # print(gnmod.type)
-            if gnmod.type == "NODES":
-                break
-
-        # Print the name of the geometry node
-        # print(gnmod.name)
+    for i in range(10):
+        place_brick(bpy.context.scene, src_brick, (i, i//2, i%2), (2, 2, 3))
         
-        # Print the node group's nodes
-        inputs = gnmod.node_group.inputs
-        for input in inputs:
-            print(input)
-
-        x_id = inputs['X'].identifier
-        y_id = inputs['Y'].identifier
-        z_id = inputs['Depth'].identifier
-        material_id = inputs['Material'].identifier
-
-        # Set X and Y current value to random integers
-        gnmod[x_id] = random.randint(1, 10)
-        gnmod[y_id] = random.randint(1, 10)
-        gnmod[z_id] = random.randint(1, 10)
+        # Print the dimensions of the brick in millimeters
+        # print('Brick dimensions: {} x {} x {} mm'.format(
+        #     src_brick.dimensions[0] * 10,
+        #     src_brick.dimensions[1] * 10,
+        #     src_brick.dimensions[2] * 10))
 
     # Deselct all objects
     bpy.ops.object.select_all(action='DESELECT')
 
+def place_brick(scene, src_brick, loc, scale=(1, 1, 3)):
+    loc = np.array(loc) / np.array([125, 125, 104]) * BRICK_SCALE
+    # Create a copy of the brick, and move it to a random location
+    brick = src_brick.copy()
+    brick.location = loc
+    bpy.context.scene.collection.objects.link(brick)
+
+    # Select the new plane and make it active and center the view
+    bpy.context.view_layer.objects.active = brick
+    brick.select_set(True)
+
+    # Get the geometry node
+    gnmod = None
+    # print('momomo')
+    # print(brick.modifiers)
+    for gnmod in brick.modifiers:
+        # print(gnmod)
+        # print(gnmod.type)
+        if gnmod.type == "NODES":
+            break
+
+    # Print the name of the geometry node
+    # print(gnmod.name)
+    
+    # Print the node group's nodes
+    inputs = gnmod.node_group.inputs
+    # for input in inputs:
+    #     print(input)
+
+    x_id = inputs['X'].identifier
+    y_id = inputs['Y'].identifier
+    z_id = inputs['Depth'].identifier
+    material_id = inputs['Material'].identifier
+
+    # Set X and Y current value to random integers
+    gnmod[x_id] = scale[0]
+    gnmod[y_id] = scale[1]
+    gnmod[z_id] = scale[2]
     
 
 def delete_scene_objects(scene=None, exclude={}):
