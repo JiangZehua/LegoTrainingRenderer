@@ -3,6 +3,8 @@ import subprocess
 
 
 def install_requirements():
+    """Install required packages from `requirements.txt`. Used when running scripts with the Python version packaged 
+    with Blender."""
     # Upgrade pip
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
 

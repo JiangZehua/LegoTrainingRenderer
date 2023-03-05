@@ -1,11 +1,17 @@
+import bpy
+import os
 import subprocess
+import sys
 
+sys.path.append(os.getcwd())
+# FIXME: Imported files will not be updated after editing until we restart Blender. Properly follow guide on making basic
+#     Blender add-on to fix this?
 from render import utils
 
 #### CONFIGURATION ####
 
+# INSTALL = True
 INSTALL = False
-# INSTALL = False
 
 BRICK_SCALE = 85  # So that a standard height (3) brick is ~9.6mm as per real LEGO bricks.
 
@@ -17,7 +23,7 @@ class Config:
     map_shape = (10, 10, 20)
     brick_size_range = (3, 1, 3)
     render = True
-    max_steps = 100
+    max_steps = 10000
 
 #######################
 
@@ -25,7 +31,6 @@ if INSTALL:
     utils.install_requirements()
 
 import os
-import bpy
 from functools import partial
 import random
 import sys
@@ -33,22 +38,20 @@ import sys
 import gym
 import hydra
 import numpy as np
+from stable_baselines3 import PPO
 import torch
 
 # Print current directory
 print(os.getcwd())
 
 # Add parent directory to path. HACK
-# sys.path.append(os.getcwd())
-
-# from configs.config import Config
 
 
 def delete_scene_objects(scene=None, exclude={}):
     """Delete a scene and all its objects."""
-    if not scene:
+    # if not scene:
         # Use current scene if no argument given
-        scene = bpy.context.scene
+        # scene = bpy.context.scene
     # Select all objects in the scene
     for obj in scene.objects:
         if obj not in exclude:
@@ -67,12 +70,11 @@ parent_dir = './'
 
 
 # @hydra.main(config_path=parent_dir + 'conf', config_name='config')
-def main(cfg: Config = Config()):
+def main(cfg: Config):
 
     # for i in range(30):
     #     place_brick(bpy.context.scene, src_brick, (i, i//2, (i%2)*3), (2, 2, 3))
         
-    print(cfg)
     env = LegoEnv(cfg)
     env.reset()
     done = False
@@ -98,7 +100,7 @@ def main(cfg: Config = Config()):
 
             # action = env.action_space.sample()
             action = actions.pop(0)
-            print(action)
+            # print(action)
 
             obs, rew, done, info = env.step(action)
 
@@ -112,7 +114,6 @@ def main(cfg: Config = Config()):
     bpy.app.timers.register(partial(timer_callback, bpy.context.scene, actions))
 
 
-
 class LegoScene:
     def __init__(self):
         scene = bpy.context.scene
@@ -124,9 +125,7 @@ class LegoScene:
         # bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
         # obj = bpy.context.object
 
-        # Add GeometryNodes
-        # gnmod = obj.modifiers.new("GeometryNodes", "NODES")
-        
+        # TODO: Spawn the first brick from scratch instead of relying ong it being already present in the scene.
         # Get the source "Brick" object
         src_brick = bpy.data.objects['Brick']
 
@@ -149,7 +148,11 @@ class LegoScene:
         delete_scene_objects(bpy.context.scene, exclude=[src_brick])
 
         # Add some basic lighting to the scene
-        bpy.ops.object.light_add(type='SUN', location=(0, 0, 10))
+        light_data = bpy.data.lights.new(name="Light", type='SUN')
+        light = bpy.data.objects.new(name="Light", object_data=light_data)
+        scene.collection.objects.link(light)
+        light.location = (0, 0, 10)
+        self.sun = light
 
         # Scale the brick # TODO: make this realistic
         src_brick.scale = (BRICK_SCALE, BRICK_SCALE, BRICK_SCALE)
@@ -216,20 +219,18 @@ class LegoScene:
         # for material in bpy.data.materials:
         #     print(material.name)
 
+        # TODO: This geometry node allows us to set a translucent material. How can we do from inside this script?
         # lego_material = bpy.data.materials['Lego']
         # lego_translucent_material = bpy.data.materials['Lego_Translucent']
 
         # gnmod[material_id] = lego_translucent_material
-
-        # Render the scene so that it is updated in the viewport
-        # bpy.ops.render.render('INVOKE_DEFAULT', write_still=True)
 
         # Deselect the brick
         brick.select_set(False)
 
 
     def clear(self):
-        delete_scene_objects(bpy.context.scene, exclude=[self.src_brick])
+        delete_scene_objects(bpy.context.scene, exclude={self.src_brick, self.sun})
 
 
 class LegoEnv(gym.Env):
@@ -246,6 +247,7 @@ class LegoEnv(gym.Env):
             self.scene = LegoScene()
 
     def step(self, action):
+        self.n_step += 1
         # print(action)
         loc_x, loc_y, loc_z, sz_x, sz_y, sz_z = action
         sz_x, sz_y, sz_z = sz_x + 1, sz_y + 1, sz_z + 1
@@ -257,19 +259,10 @@ class LegoEnv(gym.Env):
         # Weird.
         # slice_idxs = slice_idxs[2], slice_idxs[1], slice_idxs[0]
 
-        # Get the slice of the grid where we are about to place the block
-        trg_slice = self.grid[slice_idxs]
         # print(self.grid.unique())
 
-        if not trg_slice.eq(0).all():
-            coll_brick = 0
-            i = 0
-            while coll_brick == 0:
-                coll_brick = trg_slice.unique()[i].int().item()
-                i += 1
-
-            print(f'Collision at {loc} with {trg_slice.unique()}. Coll block: {self.bricks[coll_brick]}')
-            return self.observe(), 0, False, self.get_info()
+        if not self.can_place(loc, size, slice_idxs):
+            return self.observe(), -1, self.is_done(), self.get_info()
 
         self.bricks[self.brick_idx] = action
         self.grid[slice_idxs] = self.brick_idx
@@ -281,6 +274,37 @@ class LegoEnv(gym.Env):
 
 
         return self.observe(), self.get_reward(), self.is_done(), self.get_info()
+
+    def can_place(self, loc, size, slice_idxs):
+        # Get the slice of the grid where we are about to place the block
+        trg_slice = self.grid[slice_idxs]
+
+        # The brick cannot overlap with any other brick.
+        if not trg_slice.eq(0).all():
+            coll_brick = 0
+            i = 0
+            while coll_brick == 0:
+                coll_brick = trg_slice.unique()[i].int().item()
+                i += 1
+
+            # print(f'Collision at {loc} with {trg_slice.unique()}. Coll block: {self.bricks[coll_brick]}')
+            return False
+
+        # Either the brick must be placed on the ground, or, in the rows above and below the brick, there must be at 
+        # least one brick (which this one can connect to).
+        if loc[2] > 0:
+            # Check the row above
+            if not self.grid[loc[0], loc[1], loc[2] - 1].eq(0).all():
+                return True
+
+            # Check the row below
+            elif loc[2] + size[2] < self.grid.shape[2] and not self.grid[loc[0], loc[1], loc[2] + size[2]].eq(0).all():
+                return True
+
+            return False
+
+        return True
+        
 
     def reset(self):
         self.n_step = 0
@@ -301,11 +325,13 @@ class LegoEnv(gym.Env):
 
     def observe(self):
         occupancy = self.grid > 0
+        return occupancy
 
     def get_reward(self):
         return 0
 
     def is_done(self):
+        # print(self.n_step)
         return self.n_step >= self.cfg.max_steps
 
     def get_info(self):
@@ -314,4 +340,5 @@ class LegoEnv(gym.Env):
 
 
 if __name__ == '__main__':
-    main()
+    cfg = Config()
+    main(cfg)
