@@ -8,9 +8,14 @@ We'll use blender to render actions taken by an RL level designer.
 - Open `render/brick_generator.blend` in blender. You can launch blender from the command line with the `/Applications/Blender.app/Contents/MacOS/blender` (or similar).
 - In blender, select scripting mode and open the file `render/render_env.py`, and run the script. The first time you run the script, make sure `INSTALL = True` in `render_env.py`. This installs modules in `requirements.txt` in blender's built-in version of python (3.10). After the first time running this script, you can set this back to False.
 
-You can edit scripts in external editors and reload them in blender. Run the scipt `render/auto_reload.py` to enable this.
+You can edit scripts in external editors and reload them in blender. To make this reloading happen automatically, run the script `render/auto_reload.py` from inside blender.
 
-## Make an alias to the blender command
+Currently, the file `render_env.py` renders actions sampled randomly from a simple environment. In the `LegoEnv` environment, the agent can place
+rectangular bricks on a grid. Bricks that would overlap with existing bricks, or would end up floating in mid-air, are disallowed. (In other words, the agent can place bricks on the ground, or coneected to another brick -- below or above -- via studs.) Of not in the environment is the `grid` attribute, which is a 3D grid in which each cell is the size of the smallest possible brick (1x1x1 -- 1 stud on a plate 1 third the height of a standard brick). When a brick is placed such that it occupies a cell in this grid, this cell's value is changed from 0 (if it was previously empty) to the brick's unique ID (for now, this is "1" if the brick was the first placed on the grid, "3" if it was the 3rd, etc). Meanwhile, the `bricks` attribute is a dictionary mapping brick IDs to their positions and sizes.
+
+Currently, the environment returns a reward of -1 when the agent attempts to place an overlapping or floating brick, and 0 otherwise.
+
+## Optional: Make an alias to the blender command
 
 To make an alias to launch Blender from anywhere, you can use the following command in your terminal:
 
