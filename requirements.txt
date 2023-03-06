@@ -1,5 +1,5 @@
 bpy
+fake-bpy-module-latest         # is the collections of the fake Blender Python API modules for the code completion in commonly used IDEs. Installed for fun
 gym
 numpy
-stable-baselines3
-torch
+stable-baselines3[extra]       # [extra] is optional, it enables plotting features and atari games and many more

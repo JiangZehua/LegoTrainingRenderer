@@ -10,8 +10,8 @@ from render import utils
 
 #### CONFIGURATION ####
 
-# INSTALL = True
-INSTALL = False
+INSTALL = True
+# INSTALL = False
 
 BRICK_SCALE = 85  # So that a standard height (3) brick is ~9.6mm as per real LEGO bricks.
 
