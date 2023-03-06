@@ -30,6 +30,23 @@ Now you can type `blender` in any directory and it will launch Blender.
 
 Alternatively, if you're using VSCode, you can install the extension `Blender Development` and press `command + shift + P` and use the command `Blender: Open Blender` / `Blender: Start Blender` to open Blender from VSCode, the debug console will be attached to the server (`blender` process).
 
+
+## Optional: Use conda env in blender
+
+If you want to use a conda environment in blender, you can do the following:
+1. Create a conda environment with the required packages (see `requirements.txt`).
+2. go to the folder of blender, (for example, `/Applications/Blender.app/Contents/Resources/<your blender version num>`, for me is `/Applications/Blender.app/Contents/Resources/3.4`), or use the following to find the path:
+```
+echo $CONDA_PREFIX  # for mac and linux
+echo %CONDA_PREFIX%  # for windows
+conda info --envs  # for all platforms and all conda envs
+```
+3. rename the folder `python` to something else, for example `_python`. You can run `mv python _python` in the terminal.
+4. create a symlink to your conda environment, for example, `ln -s /Users/yourname/miniconda3/envs/<your_env_name> python`. For me it's `sudo ln -s /Users/zehuajiang/opt/anaconda3/envs/lego/ python`.
+5. Now you can run blender from the terminal, and it will use the conda environment you created. You may need to restart blender to make it work.
+
+Note that this will fail for M1 mac user!
+
 __Below is the upstream readme:__
 
 
