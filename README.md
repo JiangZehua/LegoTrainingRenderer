@@ -28,6 +28,8 @@ This will create a shortcut for the full path of the Blender executable. You can
 
 Now you can type `blender` in any directory and it will launch Blender.
 
+Alternatively, if you're using VSCode, you can install the extension `Blender Development` and press `command + shift + P` and use the command `Blender: Open Blender` / `Blender: Start Blender` to open Blender from VSCode, the debug console will be attached to the server (`blender` process).
+
 __Below is the upstream readme:__
 
 
