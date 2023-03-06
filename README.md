@@ -5,10 +5,11 @@ We'll use blender to render actions taken by an RL level designer.
 # Installation
 
 - Download and install blender (tested with 3.4).
-- Open `render/brick_generator.blend` in blender. You can launch blender from the command line with the `/Applications/Blender.app/Contents/MacOS/blender` (or similar).
+- Open `render/brick_generator.blend` in blender. Ideally, you should do this from the command line, so that you can see terminal output from scripts launched inside blender. For example, `/Applications/Blender.app/Contents/MacOS/blender --python render_auto_reload.py render/brick_generator.blend`
+will open the file `render/brick_generator.blend` in blender, and run the script `render/auto_reload.py`.
 - In blender, select scripting mode and open the file `render/render_env.py`, and run the script. The first time you run the script, make sure `INSTALL = True` in `render_env.py`. This installs modules in `requirements.txt` in blender's built-in version of python (3.10). After the first time running this script, you can set this back to False.
 
-You can edit scripts in external editors and reload them in blender. To make this reloading happen automatically, run the script `render/auto_reload.py` from inside blender.
+You can edit scripts in external editors and reload them in blender. To make this reloading happen automatically, run the script `render/auto_reload.py` from inside blender (or on launch as in the 2nd step above).
 
 Currently, the file `render_env.py` renders actions sampled randomly from a simple environment. In the `LegoEnv` environment, the agent can place
 rectangular bricks on a grid. Bricks that would overlap with existing bricks, or would end up floating in mid-air, are disallowed. (In other words, the agent can place bricks on the ground, or coneected to another brick -- below or above -- via studs.) Of not in the environment is the `grid` attribute, which is a 3D grid in which each cell is the size of the smallest possible brick (1x1x1 -- 1 stud on a plate 1 third the height of a standard brick). When a brick is placed such that it occupies a cell in this grid, this cell's value is changed from 0 (if it was previously empty) to the brick's unique ID (for now, this is "1" if the brick was the first placed on the grid, "3" if it was the 3rd, etc). Meanwhile, the `bricks` attribute is a dictionary mapping brick IDs to their positions and sizes.
@@ -27,7 +28,7 @@ This will create a shortcut for the full path of the Blender executable. You can
 
 Now you can type `blender` in any directory and it will launch Blender.
 
-Below is the upstream readme:
+__Below is the upstream readme:__
 
 
 # Lego Renderer for Machine Learning Projects

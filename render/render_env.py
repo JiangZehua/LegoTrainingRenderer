@@ -21,7 +21,7 @@ from dataclasses import dataclass
 @dataclass
 class Config:
     map_shape = (10, 10, 20)
-    brick_size_range = (3, 1, 3)
+    brick_size_range = (6, 6, 3)
     render = True
     max_steps = 10000
 
@@ -36,7 +36,6 @@ import random
 import sys
 
 import gym
-import hydra
 import numpy as np
 from stable_baselines3 import PPO
 import torch
