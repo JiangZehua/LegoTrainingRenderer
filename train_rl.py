@@ -2,6 +2,8 @@ from functools import partial
 import json
 import os
 
+import yaml
+
 from stable_baselines3 import PPO as PPO_SB3
 
 from configs.config import Config
@@ -20,9 +22,9 @@ class PPO(PPO_SB3):
 
         # Convert config to a dict and save.
         cfg_dict = {k: getattr(cfg, k) for k in dir(cfg) if not k.startswith('_')}
-        with open(os.path.join(save_dir, 'config.json'), 'w') as f:
-            # yaml.dump(cfg)
-            json.dump(cfg_dict, f)
+        with open(os.path.join(save_dir, 'config.yaml'), 'w') as f:
+            yaml.dump(cfg)
+            # json.dump(cfg_dict, f)
 
     def load(self, load_dir, *args, **kwargs):
         cfg_path = os.path.join(load_dir, 'config.json')

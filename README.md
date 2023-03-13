@@ -5,8 +5,8 @@ We'll use blender to render actions taken by an RL level designer.
 # Installation
 
 - Download and install blender (tested with 3.4).
-- Open `render/brick_generator.blend` in blender. Ideally, you should do this from the command line, so that you can see terminal output from scripts launched inside blender. For example, `/Applications/Blender.app/Contents/MacOS/blender --python render_auto_reload.py render/brick_generator.blend`
-will open the file `render/brick_generator.blend` in blender, and run the script `render/auto_reload.py`.
+- Open `render/brick_generator.blend` in blender from the command line, so that you can see terminal output from scripts launched inside blender: `/PATH/TO/blender --python render_auto_reload.py render/brick_generator.blend`.
+This command will open the file `render/brick_generator.blend` in blender, and run the script `render/auto_reload.py`. Replace `/PATH/TO/blender` with the appropriate path or just `blender` after setting an alias (see below).
 - In blender, select scripting mode and open the file `render/render_env.py`, and run the script. The first time you run the script, make sure `INSTALL = True` in `render_env.py`. This installs modules in `requirements.txt` in blender's built-in version of python (3.10). After the first time running this script, you can set this back to False.
 
 You can edit scripts in external editors and reload them in blender. To make this reloading happen automatically, run the script `render/auto_reload.py` from inside blender (or on launch as in the 2nd step above).
@@ -20,8 +20,14 @@ Currently, the environment returns a reward of -1 when the agent attempts to pla
 
 To make an alias to launch Blender from anywhere, you can use the following command in your terminal:
 
+Mac OS:
 ```bash
 alias blender="/Applications/Blender.app/Contents/MacOS/blender"
+```
+
+Linux:
+```bash
+alias blender="/usr/local/blender/3.4.1-linux-x64/blender"
 ```
 
 This will create a shortcut for the full path of the Blender executable. You can replace /Applications/Blender with your actual Blender installation directory. You can also add this command to your ~/.bashrc or ~/.zshrc file to make it permanent.
@@ -32,6 +38,8 @@ Alternatively, if you're using VSCode, you can install the extension `Blender De
 
 
 ## Optional: Use conda env in blender
+
+__Note that this will fail for M1 mac user!__
 
 If you want to use a conda environment in blender, you can do the following:
 1. Create a conda environment with the required packages (see `requirements.txt`).
@@ -45,7 +53,24 @@ conda info --envs  # for all platforms and all conda envs
 4. create a symlink to your conda environment, for example, `ln -s /Users/yourname/miniconda3/envs/<your_env_name> python`. For me it's `sudo ln -s /Users/zehuajiang/opt/anaconda3/envs/lego/ python`.
 5. Now you can run blender from the terminal, and it will use the conda environment you created. You may need to restart blender to make it work.
 
-Note that this will fail for M1 mac user!
+# Training and visualizing
+
+To train the agent, run:
+```bash
+python train.py --env Lego-v0 --algo ppo --conf hyperparams/ppo.yml
+```
+
+To resume training from a checkpoint, run:
+```bash
+python train.py --env Lego-v0 --algo ppo --conf hyperparams/ppo.yml -i /path/to/checkpoint
+```
+
+See the RL Baselines Zoo [docs](https://stable-baselines3.readthedocs.io/en/master/guide/rl_zoo.html) for more details about the train command.
+
+To visualize the best trained checkpoint, run:
+```bash
+blender render/brick_generator.blend --python render/enjoy.py
+```
 
 __Below is the upstream readme:__
 
