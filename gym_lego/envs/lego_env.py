@@ -35,7 +35,6 @@ class LegoEnv(gym.Env):
 
         # Weird.
         # slice_idxs = slice_idxs[2], slice_idxs[1], slice_idxs[0]
-
         # print(self.grid.unique())
 
         if not self.can_place(loc, size, slice_idxs):
@@ -73,15 +72,16 @@ class LegoEnv(gym.Env):
         # Either the brick must be placed on the ground, or, in the rows above and below the brick, there must be at 
         # least one brick (which this one can connect to).
         if loc[2] > 0:
-            # Check the row above
+            # Check the row below
             above_slice = [slice_idxs[0], slice_idxs[1], slice(loc[2] - 1, loc[2])]
             if not self.grid[above_slice].eq(0).all():
                 return True
 
-            # Check the row below
-            below_slice = [slice_idxs[0], slice_idxs[1], slice(loc[2] + size[2], loc[2] + size[2] + 1)]
-            if not self.grid[below_slice].eq(0).all():
-                return True
+            # Check the row above
+            if loc[2] + size[2] < self.cfg.map_shape[2]:
+                below_slice = [slice_idxs[0], slice_idxs[1], slice(loc[2] + size[2], loc[2] + size[2] + 1)]
+                if not self.grid[below_slice].eq(0).all():
+                    return True
 
             return False
 
@@ -136,4 +136,14 @@ class LegoEnvKwargs(LegoEnv):
             setattr(cfg, k, v)
         super().__init__(cfg=cfg)
 
+
+class LegoMaxFillEnv(LegoEnvKwargs):
+    def get_reward(self):
+        occupancy = self.grid > 0
+        return (occupancy.sum() / occupancy.numel()).item()
+
+    def is_done(self):
+        done = super().is_done()
+        done = done or self.grid.sum() == self.grid.numel()
+        return done
             

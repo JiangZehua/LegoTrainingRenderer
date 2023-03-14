@@ -61,24 +61,28 @@ from huggingface_sb3 import EnvironmentName
 from stable_baselines3.common.callbacks import tqdm
 from stable_baselines3.common.utils import set_random_seed
 
+importlib.reload(gym_lego.envs.lego_env)
+importlib.reload(gym_lego)
 
 @dataclass
 class Config():
-    env: EnvironmentName = 'Lego-v0'
+    # env: EnvironmentName = 'Lego-v0'
+    env: EnvironmentName = 'LegoMaxFill-v0'
+
     folder: str = 'logs'
     algo: str = 'ppo'
-    n_timesteps: int = 1000
+    n_timesteps: int = 199
     num_threads: int = -1
     n_envs: int = 1
     exp_id: int = 0
     verbose: int = 1
     no_render: bool = False
-    deterministic: bool = True
+    deterministic: bool = False
     device: str = 'auto'
     load_best: bool = True
     load_checkpoint: int = -1
     load_last_checkpoint: bool = False
-    stochastic: bool = False
+    stochastic: bool = True
     norm_reward: bool = False
     seed: int = 4
     reward_log: str = ''
