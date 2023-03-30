@@ -15,7 +15,7 @@ print(f'Python version: {sys.version}')
 # FIXME: Imported files will not be updated after editing until we restart Blender. Properly follow guide on making basic
 #     Blender add-on to fix this?
 import render
-from render import utils
+from gym_lego import utils
 import gym_lego
 from gym_lego.envs.lego_env import LegoEnv
 

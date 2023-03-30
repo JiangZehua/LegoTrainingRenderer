@@ -27,7 +27,7 @@ alias blender="/Applications/Blender.app/Contents/MacOS/blender"
 
 Linux:
 ```bash
-alias blender="/usr/local/blender/3.4.1-linux-x64/blender"
+alias blender="/usr/local/blender-3.4.1-linux-x64/blender"
 ```
 
 This will create a shortcut for the full path of the Blender executable. You can replace /Applications/Blender with your actual Blender installation directory. You can also add this command to your ~/.bashrc or ~/.zshrc file to make it permanent.
@@ -39,7 +39,7 @@ Alternatively, if you're using VSCode, you can install the extension `Blender De
 
 ## Optional: Use conda env in blender
 
-__Note that this will fail for M1 mac user!__
+__Note that this will fail for M1 mac user! But works for Ubuntu!__
 
 If you want to use a conda environment in blender, you can do the following:
 1. Create a conda environment with the required packages (see `requirements.txt`).

@@ -1,4 +1,4 @@
-bpy
+# bpy
 fake-bpy-module-latest         # is the collections of the fake Blender Python API modules for the code completion in commonly used IDEs. Installed for fun
 gym
 numpy

@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from render.auto_reload import DrawingClass
+from gym_lego.auto_reload import DrawingClass
 
 # HACK: Add parent directory to path
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,7 +12,7 @@ sys.path.append(root_dir)
 
 # FIXME: Imported files will not be updated after editing until we restart Blender. Properly follow guide on making basic
 #     Blender add-on to fix this?
-from render import utils
+from gym_lego import utils
 
 #### CONFIGURATION ####
 
@@ -456,8 +456,8 @@ def main(cfg: Config):
 
 if __name__ == '__main__':
 
-    context = bpy.context             
-    dc = DrawingClass(context, "Draw This On Screen")
+    # context = bpy.context             
+    # dc = DrawingClass(context, "Draw This On Screen")
 
     # cfg = Config()
     # main(cfg)

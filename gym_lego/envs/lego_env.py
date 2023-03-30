@@ -55,11 +55,23 @@ class LegoEnv(gym.Env):
         return self.observe(), self.get_reward(), self.is_done(), self.get_info()
 
     def can_place(self, loc, size, slice_idxs):
+        """_summary_
+
+        Args:
+            loc (_type_): _description_
+            size (_type_): _description_
+            slice_idxs (Iterable[slice]): The sli
+
+        Returns:
+            _type_: _description_
+        """
         # Get the slice of the grid where we are about to place the block
         trg_slice = self.grid[slice_idxs]
 
         # The brick cannot overlap with any other brick.
         if not trg_slice.eq(0).all():
+
+            # Find out which brick we collided with (for debugging).
             coll_brick = 0
             i = 0
             while coll_brick == 0:
